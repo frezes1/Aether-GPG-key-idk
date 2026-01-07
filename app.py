@@ -65,7 +65,6 @@ class PGP_APP(QWidget):
     def on_key_clicked(self, item):
         index = self.key_list.currentRow() // 3
         
-        # Safety check first
         if index >= len(self.keys):
             return
 
@@ -107,7 +106,6 @@ class PGP_APP(QWidget):
                 except:
                     valid_from = created_raw
 
-    # Convert "Valid Until"
                 try:
                     if expires_raw.isdigit():
                         valid_until = datetime.fromtimestamp(int(expires_raw)).strftime('%Y-%m-%d')
@@ -116,12 +114,10 @@ class PGP_APP(QWidget):
                 except:
                     valid_until = expires_raw
 
-                # Handle Name/Email split
                 full_uid = k["uids"][0] if k["uids"] else "Unknown <unknown>"
                 name = full_uid.split("<")[0].strip()
                 email = full_uid.split("<")[-1].replace(">", "").strip()
 
-                # Set Table Items
                 self.key_list.setItem(row, 0, QTableWidgetItem(name))
                 self.key_list.setItem(row, 1, QTableWidgetItem(email))
                 self.key_list.setItem(row, 2, QTableWidgetItem(k["status"]))
@@ -166,8 +162,8 @@ class PGP_APP(QWidget):
         output_path, ext = os.path.splitext(file_path)
 
         if os.path.exists(output_path):
-            name, extension = os.path.splitext(output_path) # Split FIRST
-            output_path = f"{name}_decrypted{extension}"   # Then use them
+            name, extension = os.path.splitext(output_path)
+            output_path = f"{name}_decrypted{extension}"
 
         try:
             result = subprocess.run([
@@ -179,7 +175,6 @@ class PGP_APP(QWidget):
             if result.returncode == 0:
                 QMessageBox.information(self,"Success", f"File decrypted to:\n{output_path}")
             else:
-                # This catches bad passwords or cancelled prompts
                 QMessageBox.critical(self, "Decryption Failed", result.stderr)
 
         except Exception as e:
